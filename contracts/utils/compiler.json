@@ -32,7 +32,6 @@
         "src/RichErrors.sol",
         "src/SafeMath.sol",
         "src/interfaces/IOwnable.sol",
-        "test/TestConstants.sol",
         "test/TestLibAddressArray.sol",
         "test/TestLibBytes.sol"
     ]
