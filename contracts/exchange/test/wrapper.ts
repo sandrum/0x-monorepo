@@ -278,7 +278,7 @@ describe('Exchange wrappers', () => {
         };
         describe('fillOrderNoThrow reentrancy tests', () => reentrancyTest(exchangeConstants.FUNCTIONS_WITH_MUTEX));
 
-        it('should transfer the correct amounts', async () => {
+        it.only('should transfer the correct amounts', async () => {
             const signedOrder = await orderFactory.newSignedOrderAsync({
                 makerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(100), 18),
                 takerAssetAmount: Web3Wrapper.toBaseUnitAmount(new BigNumber(200), 18),
@@ -291,13 +291,14 @@ describe('Exchange wrappers', () => {
                 signedOrder.signature,
                 { from: takerAddress },
             );
-            await exchangeWrapper.fillOrderNoThrowAsync(signedOrder, takerAddress, {
+            const txReceipt = await exchangeWrapper.fillOrderNoThrowAsync(signedOrder, takerAddress, {
                 takerAssetFillAmount,
                 // HACK(albrow): We need to hardcode the gas estimate here because
                 // the Geth gas estimator doesn't work with the way we use
                 // delegatecall and swallow errors.
                 gas: 250000,
             });
+            console.log(txReceipt.gasUsed);
             const newBalances = await erc20Wrapper.getBalancesAsync();
 
             const makerAssetFilledAmount = takerAssetFillAmount

@@ -21,7 +21,6 @@ pragma experimental ABIEncoderV2;
 
 import "@0x/contracts-utils/contracts/src/ReentrancyGuard.sol";
 import "@0x/contracts-utils/contracts/src/RichErrors.sol";
-import "@0x/contracts-exchange-libs/contracts/src/LibExchangeSelectors.sol";
 import "@0x/contracts-exchange-libs/contracts/src/LibMath.sol";
 import "@0x/contracts-exchange-libs/contracts/src/LibOrder.sol";
 import "@0x/contracts-exchange-libs/contracts/src/LibFillResults.sol";
@@ -73,7 +72,7 @@ contract MixinWrapperFunctions is
     {
         // ABI encode calldata for `fillOrder`
         bytes memory fillOrderCalldata = abi.encodeWithSelector(
-            FILL_ORDER_SELECTOR,
+            IExchangeCore(address(0)).fillOrder.selector,
             order,
             takerAssetFillAmount,
             signature
@@ -379,7 +378,10 @@ contract MixinWrapperFunctions is
         public
         returns (bool didCancel)
     {
-        bytes memory cancelOrderCallData = abi.encodeWithSelector(CANCEL_ORDER_SELECTOR, order);
+        bytes memory cancelOrderCallData = abi.encodeWithSelector(
+            IExchangeCore(address(0)).cancelOrder.selector,
+            order
+        );
         (didCancel,) = address(this).delegatecall(cancelOrderCallData);
         return didCancel;
     }
