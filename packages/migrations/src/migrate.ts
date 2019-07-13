@@ -34,7 +34,7 @@ const args = yargs.argv;
             await runV1MigrationsAsync(provider, artifactsDir, txDefaults);
             break;
         case ContractVersions.V2:
-            providerConfigs = { shouldUseInProcessGanache: false };
+            providerConfigs = { shouldUseInProcessGanache: true };
             provider = web3Factory.getRpcProvider(providerConfigs);
             txDefaults = {
                 from: devConstants.TESTRPC_FIRST_ADDRESS,
