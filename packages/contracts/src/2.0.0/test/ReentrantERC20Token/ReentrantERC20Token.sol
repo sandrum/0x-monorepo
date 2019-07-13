@@ -185,4 +185,10 @@ contract ReentrantERC20Token is
         // Transfer will return true if function failed for any other reason
         return true;
     }
+
+    // This is used in the Order Wallet tests
+    function ()
+        external
+        payable
+    {}
 }

@@ -165,7 +165,7 @@ contract TestExchangeInternals is
     {
         return isRoundingErrorCeil(numerator, denominator, target);
     }
- 
+
     /// @dev Updates state with results of a fill order.
     /// @param order that was filled.
     /// @param takerAddress Address of taker who filled the order.

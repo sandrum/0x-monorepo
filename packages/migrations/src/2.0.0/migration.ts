@@ -118,6 +118,14 @@ export const runV2MigrationsAsync = async (provider: Provider, artifactsDir: str
             from: owner,
         }),
     );
+
+    // Register Asset Proxies to the MAP
+    await web3Wrapper.awaitTransactionSuccessAsync(
+        await multiAssetProxy.registerAssetProxy.sendTransactionAsync(erc20proxy.address, { from: owner }),
+    );
+    await web3Wrapper.awaitTransactionSuccessAsync(
+        await multiAssetProxy.registerAssetProxy.sendTransactionAsync(erc721proxy.address, { from: owner }),
+    );
     // Transfer MAP ownership
     await web3Wrapper.awaitTransactionSuccessAsync(
         await multiAssetProxy.transferOwnership.sendTransactionAsync(assetProxyOwner.address, {

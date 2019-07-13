@@ -1,6 +1,6 @@
 import { BlockchainLifecycle } from '@0xproject/dev-utils';
 import { assetDataUtils, orderHashUtils } from '@0xproject/order-utils';
-import { RevertReason, SignedOrder } from '@0xproject/types';
+import { Order, RevertReason, SignedOrder } from '@0xproject/types';
 import { BigNumber } from '@0xproject/utils';
 import { Web3Wrapper } from '@0xproject/web3-wrapper';
 import * as chai from 'chai';
@@ -13,7 +13,7 @@ import { ERC721ProxyContract } from '../../generated_contract_wrappers/erc721_pr
 import { ExchangeContract } from '../../generated_contract_wrappers/exchange';
 import { ReentrantERC20TokenContract } from '../../generated_contract_wrappers/reentrant_erc20_token';
 import { artifacts } from '../utils/artifacts';
-import { expectTransactionFailedAsync } from '../utils/assertions';
+import { expectTransactionFailedAsync, expectTransactionFailedWithoutReasonAsync } from '../utils/assertions';
 import { getLatestBlockTimestampAsync, increaseTimeAndMineBlockAsync } from '../utils/block_timestamp';
 import { chaiSetup } from '../utils/chai_setup';
 import { constants } from '../utils/constants';
@@ -1447,6 +1447,63 @@ describe('Exchange wrappers', () => {
                 );
                 expect(expiredOrderInfo.orderStatus).to.be.equal(expectedExpiredOrderStatus);
             });
+
+            it('should throw if wallet signature is used with an eoa', async () => {
+                const currentTimestamp = (new BigNumber(await getLatestBlockTimestampAsync())).plus(new BigNumber(100000));
+
+                const order: Order = {
+                    senderAddress: constants.NULL_ADDRESS,
+                    makerAddress: makerAddress,
+                    takerAddress: constants.NULL_ADDRESS,
+                    makerFee: new BigNumber(0),
+                    takerFee: new BigNumber(0),
+                    makerAssetAmount: new BigNumber(4000000000),
+                    takerAssetAmount: new BigNumber(100),
+                    makerAssetData: assetDataUtils.encodeERC20AssetData(defaultMakerAssetAddress),
+                    takerAssetData: assetDataUtils.encodeERC20AssetData(defaultTakerAssetAddress),
+                    salt: currentTimestamp,
+                    exchangeAddress: exchange.address,
+                    feeRecipientAddress: constants.NULL_ADDRESS,
+                    expirationTimeSeconds: currentTimestamp,
+                };
+
+                const signedOrder: SignedOrder = {
+                    ...order,
+                    signature: '0x04',
+                };
+                return expectTransactionFailedWithoutReasonAsync(
+                    exchangeWrapper.fillOrderAsync(signedOrder, takerAddress),
+                );
+            })
+
+            it('should throw if wallet signature is used with a contract that returns nothing', async () => {
+                const currentTimestamp = (new BigNumber(await getLatestBlockTimestampAsync())).plus(new BigNumber(100000));
+
+                const order: Order = {
+                    senderAddress: constants.NULL_ADDRESS,
+                    makerAddress: reentrantErc20Token.address,
+                    takerAddress: constants.NULL_ADDRESS,
+                    makerFee: new BigNumber(0),
+                    takerFee: new BigNumber(0),
+                    makerAssetAmount: new BigNumber(4000000000),
+                    takerAssetAmount: new BigNumber(100),
+                    makerAssetData: assetDataUtils.encodeERC20AssetData(defaultMakerAssetAddress),
+                    takerAssetData: assetDataUtils.encodeERC20AssetData(defaultTakerAssetAddress),
+                    salt: currentTimestamp,
+                    exchangeAddress: exchange.address,
+                    feeRecipientAddress: constants.NULL_ADDRESS,
+                    expirationTimeSeconds: currentTimestamp,
+                };
+
+                const signedOrder: SignedOrder = {
+                    ...order,
+                    signature: '0x04',
+                };
+
+                return expectTransactionFailedWithoutReasonAsync(
+                    exchangeWrapper.fillOrderAsync(signedOrder, takerAddress),
+                );
+            })
         });
     });
 }); // tslint:disable-line:max-file-line-count
