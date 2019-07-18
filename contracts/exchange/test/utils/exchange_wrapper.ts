@@ -47,15 +47,6 @@ export class ExchangeWrapper {
         const tx = await this._logDecoder.getTxWithDecodedLogsAsync(txHash);
         return tx;
     }
-    public async cancelOrderNoThrowAsync(
-        signedOrder: SignedOrder,
-        from: string,
-    ): Promise<TransactionReceiptWithDecodedLogs> {
-        const params = orderUtils.createCancel(signedOrder);
-        const txHash = await this._exchange.cancelOrderNoThrow.sendTransactionAsync(params.order, { from });
-        const tx = await this._logDecoder.getTxWithDecodedLogsAsync(txHash);
-        return tx;
-    }
     public async fillOrKillOrderAsync(
         signedOrder: SignedOrder,
         from: string,
@@ -195,14 +186,6 @@ export class ExchangeWrapper {
         from: string,
     ): Promise<TransactionReceiptWithDecodedLogs> {
         const txHash = await this._exchange.batchCancelOrders.sendTransactionAsync(orders, { from });
-        const tx = await this._logDecoder.getTxWithDecodedLogsAsync(txHash);
-        return tx;
-    }
-    public async batchCancelOrdersNoThrowAsync(
-        orders: SignedOrder[],
-        from: string,
-    ): Promise<TransactionReceiptWithDecodedLogs> {
-        const txHash = await this._exchange.batchCancelOrdersNoThrow.sendTransactionAsync(orders, { from });
         const tx = await this._logDecoder.getTxWithDecodedLogsAsync(txHash);
         return tx;
     }
